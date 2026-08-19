@@ -12,10 +12,38 @@ datasource db {
   provider = "postgresql"
 }
 
+// user
 model User {
   id            String   @id @default(uuid())
   name          String
   email         String   @unique
   password_hash String
   created_at    DateTime @default(now())
+  notes         Note[]
+
+  @@map("users") // rename table
+}
+
+// note
+enum NoteSource {
+  MANUAL
+  UPLOAD
+}
+
+model Note {
+  id           String     @id @default(uuid())
+  title        String
+  content      String     @db.Text
+  summary      String?    @db.Text
+  source       NoteSource 
+  source_url   String?    @db.Text
+  updated_at   DateTime   @updatedAt
+  created_at   DateTime   @default(now())
+
+  // foreign key
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("notes")
 }
