@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import NoteEditor from "@/app/components/NoteEditor";
+import DeleteNoteButton from "@/app/components/DeleteNoteButton";
 
 export default async function NotePage({
   params,

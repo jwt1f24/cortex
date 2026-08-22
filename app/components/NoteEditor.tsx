@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Note } from "@/app/generated/prisma";
+import DeleteNoteButton from "./DeleteNoteButton";
 
 export default function NoteEditor({ note }: { note: Note }) {
   const router = useRouter();
@@ -41,13 +42,18 @@ export default function NoteEditor({ note }: { note: Note }) {
 
   return (
     <div>
+      {/* editor fields */}
       <input value={title} onChange={(e) => setTitle(e.target.value)} />
       <textarea value={content} onChange={(e) => setContent(e.target.value)} />
 
+      {/* save button */}
       {error && <p>{error}</p>}
       <button onClick={saveChanges} disabled={isUpdating}>
         {isUpdating ? "Saving..." : "Save Changes"}
       </button>
+
+      {/* delete button */}
+      <DeleteNoteButton noteId={note.id} />
     </div>
   );
 }
