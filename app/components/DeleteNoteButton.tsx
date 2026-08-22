@@ -15,7 +15,7 @@ export default function DeleteNoteButton({ noteId }: { noteId: string }) {
     setIsDeleting(true);
 
     try {
-      // send delete response to api
+      // send delete request to api
       const res = await fetch(`/api/notes/${noteId}`, {
         method: "DELETE",
       });

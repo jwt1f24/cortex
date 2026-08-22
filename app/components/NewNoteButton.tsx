@@ -12,7 +12,7 @@ export default function NewNoteButton() {
     setIsLoading(true);
 
     try {
-      // post empty body to api
+      // send http post empty body request to api
       const res = await fetch("/api/notes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -24,7 +24,7 @@ export default function NewNoteButton() {
         throw new Error(data?.error || "Unable to create note.");
       }
 
-      // parse created note
+      // parse http response body from json to javascript arr/obj format
       const note = await res.json();
 
       // navigate to the created note's editor via server-generated id

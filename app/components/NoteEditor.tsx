@@ -16,7 +16,7 @@ export default function NoteEditor({ note }: { note: Note }) {
     setIsUpdating(true);
 
     try {
-      // patch update to api
+      // send patch request to api
       const res = await fetch(`/api/notes/${note.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
