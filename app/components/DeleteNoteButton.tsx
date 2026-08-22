@@ -39,7 +39,11 @@ export default function DeleteNoteButton({ noteId }: { noteId: string }) {
   return (
     <div>
       {error && <p>{error}</p>}
-      <button onClick={deleteNote} disabled={isDeleting}>
+      <button
+        onClick={deleteNote}
+        disabled={isDeleting}
+        className="cursor-pointer"
+      >
         {isDeleting ? "Deleting note..." : "Delete Note"}
       </button>
     </div>

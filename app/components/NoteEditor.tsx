@@ -41,14 +41,22 @@ export default function NoteEditor({ note }: { note: Note }) {
   };
 
   return (
-    <div>
+    <div className="flex gap-10">
       {/* editor fields */}
       <input value={title} onChange={(e) => setTitle(e.target.value)} />
-      <textarea value={content} onChange={(e) => setContent(e.target.value)} />
+      <textarea
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        className="p-2 w-100 h-100"
+      />
 
       {/* save button */}
       {error && <p>{error}</p>}
-      <button onClick={saveChanges} disabled={isUpdating}>
+      <button
+        onClick={saveChanges}
+        disabled={isUpdating}
+        className="cursor-pointer"
+      >
         {isUpdating ? "Saving..." : "Save Changes"}
       </button>
 

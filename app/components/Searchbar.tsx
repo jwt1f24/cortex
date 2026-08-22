@@ -46,16 +46,16 @@ export default function Searchbar() {
   };
 
   return (
-    <div>
+    <div className="relative w-full max-w-md">
       {/* search field */}
-      <form onSubmit={handleSearch}>
+      <form onSubmit={handleSearch} className="flex gap-2">
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search note"
         />
-        <button type="submit" disabled={isSearching}>
+        <button type="submit" disabled={isSearching} className="cursor-pointer">
           {isSearching ? "Searching..." : "Search"}
         </button>
       </form>
@@ -64,7 +64,7 @@ export default function Searchbar() {
 
       {/* result popup */}
       {hasSearched && (
-        <div>
+        <div className="absolute">
           {results.length === 0 ? (
             <p>No results found.</p>
           ) : (

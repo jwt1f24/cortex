@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import NewNoteButton from "../components/NewNoteButton";
 import NoteOptionsButton from "../components/NoteOptionsButton";
-import Searchbar from "../components/Searchbar";
 
 export default async function HomePage({
   searchParams,
@@ -33,13 +32,10 @@ export default async function HomePage({
   return (
     <main>
       {/* header */}
-      <div>
+      <div className="flex gap-10 mb-4">
         <h1>Welcome to Cortex.</h1>
         <NewNoteButton />
       </div>
-
-      {/* search bar */}
-      <Searchbar />
 
       {/* note list */}
       <div>
@@ -47,9 +43,9 @@ export default async function HomePage({
           <p>No documents available.</p>
         ) : (
           notes.map((note) => (
-            <div key={note.id}>
+            <div key={note.id} className="flex gap-10">
               <Link href={`/notes/${note.id}`}>
-                <div>
+                <div className="flex gap-10">
                   <h3>{note.title}</h3>
                   <p>{note.updated_at.toLocaleDateString()}</p>
                 </div>
