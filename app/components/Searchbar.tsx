@@ -1,0 +1,86 @@
+"use client";
+import { useState } from "react";
+import type { Note } from "../generated/prisma";
+import Link from "next/link";
+
+export default function Searchbar() {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<Note[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // search handler
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = query.trim();
+
+    // clear popup if query is empty
+    if (trimmed === "") {
+      setResults([]);
+      setHasSearched(false);
+      return;
+    }
+
+    setError(null);
+    setIsSearching(true);
+
+    try {
+      // send http get request to api
+      const res = await fetch(`/api/notes?q=${encodeURIComponent(trimmed)}`);
+      if (!res.ok) throw new Error("Search failed.");
+
+      // parse http resonse body from json to javascript arr/obj format
+      const data = await res.json();
+
+      setResults(data);
+      setHasSearched(true);
+    } catch (error) {
+      console.error("Error searching notes:", error);
+      setError(
+        error instanceof Error ? error.message : "Something went wrong.",
+      );
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  return (
+    <div>
+      {/* search field */}
+      <form onSubmit={handleSearch}>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search note"
+        />
+        <button type="submit" disabled={isSearching}>
+          {isSearching ? "Searching..." : "Search"}
+        </button>
+      </form>
+
+      {error && <p>{error}</p>}
+
+      {/* result popup */}
+      {hasSearched && (
+        <div>
+          {results.length === 0 ? (
+            <p>No results found.</p>
+          ) : (
+            results.map((note) => (
+              <Link
+                key={note.id}
+                href={`/notes/${note.id}`}
+                onClick={() => setHasSearched(false)}
+              >
+                <span>{note.title}</span>
+                <span>{new Date(note.updated_at).toLocaleDateString()}</span>
+              </Link>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

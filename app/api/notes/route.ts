@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@/app/generated/prisma";
 
 const VALID_SOURCES = ["MANUAL", "UPLOAD"];
 
@@ -36,13 +37,22 @@ export async function POST(req: Request) {
 }
 
 // get note list
-export async function GET() {
+export async function GET(req: Request) {
     try {
         const session = await auth()
         if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
             
+        // search for note keywords
+        const q = new URL(req.url).searchParams.get("q")
+        const where: Prisma.NoteWhereInput = {
+            userId: session.user.id,
+            ...(q && {
+                OR: [{ title: { contains: q, mode:"insensitive" } }],
+            }),
+        };
+
         const notes = await prisma.note.findMany({ 
-            where: { userId: session.user.id },
+            where: where,
             orderBy: { updated_at: "desc" },
         });
         
