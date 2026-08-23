@@ -20,9 +20,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
         // gemini api call
         const truncatedContent = note.content.trim().slice(0, 10000);
+        const prompt = `Summarize the following note in concise bullet points starting with "• ", with a short title (max 10 words) above for context. Return only the summary, no preamble.\n\nContent:\n${truncatedContent}`;
         const result = await ai.models.generateContent({
             model: "gemini-3.6-flash",
-            contents: `Summarize the following note in concise • bullet points, with a short title above for context. Return only the summary, no preamble.\n\nContent:\n${truncatedContent}`,
+            contents: prompt,
         });
 
         // summarize note content

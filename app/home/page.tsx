@@ -4,6 +4,7 @@ import { Prisma } from "@/app/generated/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import NewNoteButton from "../components/NewNoteButton";
+import UploadNoteButton from "../components/UploadNoteButton";
 import NoteOptionsButton from "../components/NoteOptionsButton";
 
 export default async function HomePage({
@@ -35,6 +36,7 @@ export default async function HomePage({
       <div className="flex gap-10 mb-4">
         <h1>Welcome to Cortex.</h1>
         <NewNoteButton />
+        <UploadNoteButton />
       </div>
 
       {/* note list */}
