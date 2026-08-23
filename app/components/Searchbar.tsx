@@ -74,8 +74,10 @@ export default function Searchbar() {
                 href={`/notes/${note.id}`}
                 onClick={() => setHasSearched(false)}
               >
-                <span>{note.title}</span>
-                <span>{new Date(note.updated_at).toLocaleDateString()}</span>
+                <div className="flex gap-4">
+                  <span>{note.title}</span>
+                  <span>{new Date(note.updated_at).toLocaleDateString()}</span>
+                </div>
               </Link>
             ))
           )}

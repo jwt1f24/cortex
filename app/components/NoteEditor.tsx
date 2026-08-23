@@ -2,12 +2,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Note } from "@/app/generated/prisma";
+import SummarizeButton from "./SummarizeButton";
 import DeleteNoteButton from "./DeleteNoteButton";
 
 export default function NoteEditor({ note }: { note: Note }) {
   const router = useRouter();
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
+  const [summary, setSummary] = useState(note.summary ?? "");
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,7 +22,7 @@ export default function NoteEditor({ note }: { note: Note }) {
       const res = await fetch(`/api/notes/${note.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, content }),
+        body: JSON.stringify({ title, content, summary }),
       });
 
       if (!res.ok) {
@@ -49,6 +51,14 @@ export default function NoteEditor({ note }: { note: Note }) {
         onChange={(e) => setContent(e.target.value)}
         className="p-2 w-100 h-100"
       />
+      <textarea
+        value={summary}
+        onChange={(e) => setSummary(e.target.value)}
+        className="p-2 w-100 h-100"
+      />
+
+      {/* summarize note button */}
+      <SummarizeButton noteId={note.id} onSummary={setSummary} />
 
       {/* save button */}
       {error && <p>{error}</p>}
