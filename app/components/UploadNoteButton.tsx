@@ -7,22 +7,28 @@ export default function UploadNoteButton() {
   const [file, setFile] = useState<File | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<{
+    status: "uploading" | "success" | "error";
+    message: string;
+  } | null>(null);
 
   // open modal for uploading document
   const openModal = () => setIsOpen(!isOpen);
 
   // close modal via cancel button
   const closeModal = () => {
+    setIsOpen(false);
     setFile(null);
-    setError(null);
-    openModal();
   };
 
   // upload document process
   const upload = async () => {
     if (!file) return;
-    setError(null);
+    const name = file.name;
+
+    // close modal & load toast
+    closeModal();
+    setToast({ status: "uploading", message: `Uploading ${name}...` });
     setIsUploading(true);
 
     try {
@@ -40,14 +46,15 @@ export default function UploadNoteButton() {
         throw new Error(data?.error || "Unable to create note.");
       }
 
-      // close modal and refresh
-      closeModal();
+      // complete toast and refresh after 3s
+      setToast({ status: "success", message: `${name} uploaded` });
+      setTimeout(() => setToast(null), 3000);
       router.refresh();
     } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Something went wrong.";
       console.error("Error uploading file:", error);
-      setError(
-        error instanceof Error ? error.message : "Something went wrong.",
-      );
+      setToast({ status: "error", message });
     } finally {
       setIsUploading(false);
     }
@@ -55,8 +62,9 @@ export default function UploadNoteButton() {
 
   return (
     <div>
-      {error && <p>{error}</p>}
       <button onClick={openModal}>Upload File</button>
+
+      {/* modal */}
       {isOpen && (
         <div>
           {/* cancel button */}
@@ -66,13 +74,23 @@ export default function UploadNoteButton() {
           <input
             type="file"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            accept=".txt,.md"
+            accept=".txt,.md,.pdf,.docx,text/plain,text/markdown,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
           />
 
           {/* upload button */}
           <button onClick={upload} disabled={!file || isUploading}>
             Upload
           </button>
+        </div>
+      )}
+
+      {/* toast */}
+      {toast && (
+        <div className="fixed bottom-4 right-4 flex gap-4 rounded-lg border bg-white text-black p-3 shadow-lg">
+          <p>{toast.message}</p>
+          {toast.status !== "uploading" && (
+            <button onClick={() => setToast(null)}>✖</button>
+          )}
         </div>
       )}
     </div>

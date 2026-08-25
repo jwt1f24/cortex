@@ -2,9 +2,15 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { ai } from "@/lib/gemini";
+import { extractText } from "@/lib/extractText";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const ALLOWED_TYPES = ["text/plain", "text/markdown"];
+export const ALLOWED_TYPES: string[] = [
+    "text/plain",
+    "text/markdown",
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
 
 // upload note
 export async function POST(req: Request) {
@@ -23,8 +29,13 @@ export async function POST(req: Request) {
         if (file.size > MAX_FILE_SIZE) return NextResponse.json({ error: "File exceeds 5MB size limit" }, { status: 400 });
 
         // extract content
-        const content = (await file.text()).trim();
-        if (!content) return NextResponse.json({ error: "File is empty" }, { status: 400 });
+        const content = (await extractText(file)).trim();
+        if (!content) {
+            const msg = file.type === "application/pdf"
+            ? "No text found"
+            : "File is empty"
+            return NextResponse.json({ error: msg }, { status: 400 });
+        } 
 
         // gemini api call
         const truncatedContent = content.slice(0, 10000);
