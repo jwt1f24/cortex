@@ -31,14 +31,15 @@ enum NoteSource {
 }
 
 model Note {
-  id           String     @id @default(uuid())
+  id           String         @id @default(uuid())
   title        String
-  content      String     @db.Text
-  summary      String?    @db.Text
+  content      String         @db.Text
+  summary      String?        @db.Text
   source       NoteSource 
-  source_url   String?    @db.Text
-  updated_at   DateTime   @updatedAt
-  created_at   DateTime   @default(now())
+  source_url   String?        @db.Text
+  embedding    NoteEmbedding?
+  updated_at   DateTime       @updatedAt
+  created_at   DateTime       @default(now())
 
   // foreign key
   userId       String
@@ -46,4 +47,15 @@ model Note {
 
   @@index([userId])
   @@map("notes")
+}
+
+// note embedding
+model NoteEmbedding {
+  id           String                     @id @default(uuid())
+  noteId       String                     @unique
+  note         Note                       @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  embedding    Unsupported("vector(768)") 
+  created_at   DateTime                   @default(now())
+
+  @@map("note_embeddings")
 }

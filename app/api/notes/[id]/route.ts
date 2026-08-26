@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { saveEmbedding } from "@/lib/embeddings";
 
 const VALID_SOURCES = ["MANUAL", "UPLOAD"];
 
@@ -60,6 +61,15 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
                 ...(summary !== undefined && { summary }),
             },
         });
+
+        // save embedded content
+        if (content !== undefined && content !== note.content) {
+            try {
+                await saveEmbedding(id, `${updateNote.title}\n\n${updateNote.content}`.slice(0, 30000));
+            } catch(embedError) {
+                console.error("Failed to save embedding:", embedError);
+            }    
+        }
 
         return NextResponse.json(updateNote);
     } catch (error) {
