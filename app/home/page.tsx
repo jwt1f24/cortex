@@ -31,28 +31,41 @@ export default async function HomePage({
   });
 
   return (
-    <main>
-      {/* header */}
-      <div className="flex gap-10 mb-4">
-        <h1>Welcome to Cortex.</h1>
-        <NewNoteButton />
-        <UploadNoteButton />
+    <main className="max-w-6xl mx-auto px-6 py-8">
+      {/* header row */}
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-medium tracking-tight">
+          Welcome to Cortex.
+        </h1>
+        <div className="flex gap-2">
+          <NewNoteButton />
+          <UploadNoteButton />
+        </div>
       </div>
 
       {/* note list */}
-      <div>
+      <div className="divide-y divide-gray-200 border-y border-gray-200 bg-white">
         {notes.length === 0 ? (
           <p>No documents available.</p>
         ) : (
           notes.map((note) => (
-            <div key={note.id} className="flex gap-10">
-              <Link href={`/notes/${note.id}`}>
-                <div className="flex gap-10">
-                  <h3>{note.title}</h3>
-                  <p>{note.updated_at.toLocaleDateString()}</p>
-                </div>
+            <div
+              key={note.id}
+              className="group flex items-center gap-4 px-2 py-3 hover:bg-gray-50 transition"
+            >
+              <Link href={`/notes/${note.id}`} className="flex-1 min-w-0">
+                <span className="block text-base text-black font-medium truncate">
+                  {note.title}
+                </span>
               </Link>
-              <NoteOptionsButton noteId={note.id} />
+
+              <span className="shrink-0 text-base text-gray-500">
+                {note.updated_at.toLocaleDateString()}
+              </span>
+
+              <div className="shrink-0">
+                <NoteOptionsButton noteId={note.id} />
+              </div>
             </div>
           ))
         )}
