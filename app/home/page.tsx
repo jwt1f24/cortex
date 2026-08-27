@@ -96,7 +96,10 @@ export default async function HomePage({
                   </span>
 
                   <div className="col-span-2 flex justify-end">
-                    <NoteOptionsButton noteId={note.id} />
+                    <NoteOptionsButton
+                      noteId={note.id}
+                      noteTitle={note.title}
+                    />
                   </div>
                 </div>
               ))

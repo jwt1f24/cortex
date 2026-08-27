@@ -1,15 +1,42 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { ExternalLink } from "lucide-react";
 import DeleteNoteButton from "./DeleteNoteButton";
+import RenameNoteButton from "./RenameNoteButton";
 
-export default function NoteOptionsButton({ noteId }: { noteId: string }) {
+export default function NoteOptionsButton({
+  noteId,
+  noteTitle,
+}: {
+  noteId: string;
+  noteTitle: string;
+}) {
   const [isOpen, setIsOpen] = useState(false);
 
   // toggle popup visibility
   const loadOptions = () => setIsOpen(!isOpen);
 
+  // hide popup when clicking outside
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
+  // button design
+  const itemClass =
+    "flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer text-left";
+
   return (
-    <div>
+    <div className="relative" ref={menuRef}>
       <button
         onClick={loadOptions}
         aria-label="Note options"
@@ -24,10 +51,24 @@ export default function NoteOptionsButton({ noteId }: { noteId: string }) {
 
       {/* dropdown */}
       {isOpen && (
-        <div>
-          <DeleteNoteButton noteId={noteId} />
-          {/* rename title btn (later) */}
-          {/* open in new tab (later) */}
+        <div className="absolute right-0 mt-2 w-48 border border-gray-300 bg-white shadow-lg py-1 z-50">
+          {/* edit note title */}
+          <RenameNoteButton noteId={noteId} noteTitle={noteTitle} />
+
+          {/* open in new tab */}
+          <a
+            href={`/notes/${noteId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setIsOpen(false)}
+            className={itemClass}
+          >
+            <ExternalLink className="w-4 h-4" />
+            Open in new tab
+          </a>
+
+          {/* delete note */}
+          <DeleteNoteButton noteId={noteId} variant="menu" />
         </div>
       )}
     </div>
