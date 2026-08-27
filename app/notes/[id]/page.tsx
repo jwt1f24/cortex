@@ -2,7 +2,6 @@ import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import NoteEditor from "@/app/components/NoteEditor";
-import DeleteNoteButton from "@/app/components/DeleteNoteButton";
 
 export default async function NotePage({
   params,
@@ -20,5 +19,5 @@ export default async function NotePage({
   // edge case
   if (!note || note.userId !== session.user.id) notFound();
 
-  return <NoteEditor note={note} />;
+  return <NoteEditor note={note} user={session.user} />;
 }

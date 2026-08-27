@@ -42,7 +42,7 @@ export default function DeleteNoteButton({ noteId }: { noteId: string }) {
       <button
         onClick={deleteNote}
         disabled={isDeleting}
-        className="cursor-pointer"
+        className="rounded-md px-4 py-2 bg-red-500 text-base font-semibold text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
       >
         {isDeleting ? "Deleting note..." : "Delete Note"}
       </button>

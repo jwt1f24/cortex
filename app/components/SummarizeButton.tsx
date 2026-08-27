@@ -42,7 +42,11 @@ export default function SummarizeButton({
   return (
     <div>
       {error && <p>{error}</p>}
-      <button onClick={summarize} disabled={isSummarizing}>
+      <button
+        onClick={summarize}
+        disabled={isSummarizing}
+        className="rounded-md px-4 py-2 bg-blue-500 text-base font-semibold text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+      >
         {isSummarizing ? "Summarizing..." : "Summarize Note"}
       </button>
     </div>
