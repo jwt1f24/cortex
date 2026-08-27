@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function UploadNoteButton() {
@@ -62,7 +63,15 @@ export default function UploadNoteButton() {
 
   return (
     <div>
-      <button onClick={openModal}>Upload File</button>
+      <button
+        onClick={openModal}
+        className="rounded-md px-4 py-2 bg-blue-500 text-base font-semibold text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+      >
+        <div className="flex gap-2">
+          <Upload />
+          Upload File
+        </div>
+      </button>
 
       {/* modal */}
       {isOpen && (
@@ -116,11 +125,30 @@ export default function UploadNoteButton() {
 
       {/* toast */}
       {toast && (
-        <div className="fixed bottom-4 right-4 flex gap-4 rounded-lg border bg-white text-black p-3 shadow-lg">
-          <p>{toast.message}</p>
-          {toast.status !== "uploading" && (
-            <button onClick={() => setToast(null)}>✖</button>
-          )}
+        <div className="fixed bottom-4 right-4 z-50 w-80 rounded-lg border border=gray=200 bg-white shadow-lg overflow-hidden">
+          <div className="flex items-start justify-between gap-3 px-4 py-3">
+            <div className="flex items-start gap-2.5">
+              <span
+                className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${
+                  toast.status === "success"
+                    ? "bg-green-500"
+                    : toast.status === "error"
+                      ? "bg-red-500"
+                      : "bg-blue-500 animate-pulse"
+                }`}
+              />
+              <p className="text-sm text-gray-800">{toast.message}</p>
+            </div>
+
+            {toast.status !== "uploading" && (
+              <button
+                onClick={() => setToast(null)}
+                className="text-sm text-gray-500 hover:text-gray-600"
+              >
+                ✖
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>

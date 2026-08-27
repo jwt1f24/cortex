@@ -1,99 +1,47 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
-
-type SearchResult = {
-  id: string;
-  title: string;
-  summary: string | null;
-  updated_at: string;
-  distance: number;
-};
+import { Search } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Searchbar() {
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get("q") ?? "");
 
   // search handler
-  const handleSearch = async (e: React.FormEvent) => {
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = query.trim();
+    router.push(trimmed ? `/home?q=${encodeURIComponent(trimmed)}` : "/home");
+  };
 
-    // clear popup if query is empty
-    if (trimmed === "") {
-      setResults([]);
-      setHasSearched(false);
-      return;
-    }
-
-    setError(null);
-    setIsSearching(true);
-
-    try {
-      // send http get request to api
-      const res = await fetch("/api/notes/search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: trimmed }),
-      });
-      if (!res.ok) throw new Error("Search failed.");
-
-      // parse http resonse body from json to javascript arr/obj format
-      const data = await res.json();
-
-      setResults(data);
-      setHasSearched(true);
-    } catch (error) {
-      console.error("Error searching notes:", error);
-      setError(
-        error instanceof Error ? error.message : "Something went wrong.",
-      );
-    } finally {
-      setIsSearching(false);
-    }
+  // clear search
+  const clearSearch = () => {
+    setQuery("");
+    router.push("/home");
   };
 
   return (
-    <div className="relative w-full max-w-md">
-      {/* search field */}
-      <form onSubmit={handleSearch} className="flex gap-2">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search note"
-        />
-        <button type="submit" disabled={isSearching} className="cursor-pointer">
-          {isSearching ? "Searching..." : "Search"}
+    <form onSubmit={handleSearch} className="relative w-full max-w-lg mx-auto">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 pointer-events-none" />
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search note"
+        className="w-full rounded-xl border border-gray-300 bg-gray-50 pl-10 pr-10 py-1.5 text-base placeholder:text-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      />
+
+      {query && (
+        <button
+          type="button"
+          onClick={clearSearch}
+          aria-label="Clear search"
+          className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600 flex items-center justify-center transition cursor-pointer"
+        >
+          ✖
         </button>
-      </form>
-
-      {error && <p>{error}</p>}
-
-      {/* result popup */}
-      {hasSearched && (
-        <div className="absolute">
-          {results.length === 0 ? (
-            <p>No results found.</p>
-          ) : (
-            results.map((note) => (
-              <Link
-                key={note.id}
-                href={`/notes/${note.id}`}
-                onClick={() => setHasSearched(false)}
-              >
-                <div className="flex gap-4">
-                  <span>{note.title}</span>
-                  <span>{new Date(note.updated_at).toLocaleDateString()}</span>
-                </div>
-              </Link>
-            ))
-          )}
-        </div>
       )}
-    </div>
+    </form>
   );
 }

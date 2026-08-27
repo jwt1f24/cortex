@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function NewNoteButton() {
@@ -40,9 +41,20 @@ export default function NewNoteButton() {
 
   return (
     <div>
-      {error && <p>{error}</p>}
-      <button onClick={createNewNote} disabled={isLoading}>
-        {isLoading ? "Creating note..." : "New Note"}
+      {error && (
+        <p className="absolute top-full right-0 mt-1 whitespace-nowrap text-xs text-red-600">
+          {error}
+        </p>
+      )}
+      <button
+        onClick={createNewNote}
+        disabled={isLoading}
+        className="rounded-md px-4 py-2 bg-blue-500 text-base font-semibold text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+      >
+        <div className="flex gap-2">
+          <Plus />
+          {isLoading ? "Creating note..." : "New Note"}
+        </div>
       </button>
     </div>
   );
