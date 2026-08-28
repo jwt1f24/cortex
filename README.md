@@ -12,6 +12,7 @@
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Google Gemini](https://img.shields.io/badge/Google_Gemini-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)
 ![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
+![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)
 
 </div>
 
@@ -109,6 +110,7 @@ query → title match (ILIKE)
 - 🗃️ **Raw SQL where needed**: parameterised `$queryRaw` for vector operations Prisma can't express
 - 🔒 **Server-only secrets**: API keys never reach the client; all AI calls run in route handlers
 - 🚀 **CI/CD**: auto-deploy on push to main via Vercel
+- ✅ **Automated tests**: Vitest covering auth, ownership enforcement, and upload validation — all external services mocked
 
 ## 🛠️ Technologies
 
@@ -142,6 +144,7 @@ query → title match (ILIKE)
 
 - Vercel (hosting + CI/CD)
 - Neon (managed Postgres)
+- Vitest (unit tests + mocked external services)
 
 ## 🧠 Engineering Decisions
 
