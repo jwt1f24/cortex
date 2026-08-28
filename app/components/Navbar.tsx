@@ -9,7 +9,7 @@ export default function Navbar({
   user: { name?: string | null; email?: string | null };
 }) {
   return (
-    <div className="mb-8 border-b border-gray-200 bg-white text-black">
+    <div className="mb-8 border-b border-gray-200 bg-white text-black text-2xl">
       <div className="px-6 h-14 flex items-center justify-between gap-6">
         {/* left */}
         <Link
