@@ -101,6 +101,7 @@ query → title match (ILIKE)
 - 🔁 **Structured AI output**: single Gemini call returns title and summary as JSON, parsed with fallbacks
 - 🛡️ **Graceful degradation**: AI failures degrade a feature instead of breaking the request
 - ⚡ **Upload toast**: modal closes immediately, progress reported in a corner toast
+- 🚦 **Rate limiting**: sliding-window limits on AI endpoints via Upstash Redis, keyed per user — in-memory counters don't work across serverless instances
 
 ### Technical Features
 

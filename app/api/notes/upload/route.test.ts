@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { POST } from "./route";
+import { auth } from "@/auth";
+import { aiLimiter } from "@/lib/ratelimit";
 
 vi.mock("@/auth", () => ({ auth: vi.fn() }));
 vi.mock("@/lib/prisma", () => ({
@@ -10,8 +12,9 @@ vi.mock("@/lib/embeddings", () => ({ saveEmbedding: vi.fn() }));
 vi.mock("@/lib/gemini", () => ({
   ai: { models: { generateContent: vi.fn() } },
 }));
-
-import { auth } from "@/auth";
+vi.mock("@/lib/ratelimit", () => ({
+  aiLimiter: { limit: vi.fn() },
+}))
 
 function uploadRequest(file: File) {
   const formData = new FormData();
@@ -20,7 +23,15 @@ function uploadRequest(file: File) {
 }
 
 describe("POST /api/notes/upload", () => {
-  beforeEach(() => vi.resetAllMocks());
+  beforeEach(() => {
+    vi.resetAllMocks();
+    vi.mocked(aiLimiter.limit).mockResolvedValue({
+      success: true,
+      limit: 20,
+      remaining: 19,
+      reset: 0,
+    } as never);
+  });
 
   it("returns 401 when not authenticated", async () => {
     vi.mocked(auth).mockResolvedValue(null as never);
