@@ -47,7 +47,8 @@ export default function SignUp() {
       } else {
         setError("Automatic sign-in failed, please login manually.");
       }
-    } catch (err) {
+    } catch (error) {
+      console.error("Error:", error);
       setError("Network error, please check your connection.");
     } finally {
       setLoading(false);
