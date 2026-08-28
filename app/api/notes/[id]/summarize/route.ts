@@ -2,12 +2,29 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { ai } from "@/lib/gemini";
+import { aiLimiter } from "@/lib/ratelimit";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         // auth check
         const session = await auth();
         if (!session?.user?.id) return NextResponse.json({ error:"Unauthorized" }, { status: 401 });
+
+        // rate limiter
+        const { success, limit, remaining, reset } = await aiLimiter.limit(session.user.id);
+        if (!success) {
+            return NextResponse.json(
+                { error: "Rate limit exceeded. Try again later." },
+                {
+                    status: 429,
+                    headers: {
+                        "X-RateLimit-Limit": limit.toString(),
+                        "X-RateLimit-Remaining": remaining.toString(),
+                        "X-RateLimit-Reset": reset.toString(),
+                    },
+                }
+            );
+        }
 
         // fetch note
         const {id} = await params

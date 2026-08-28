@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { embed } from "@/lib/embeddings";
 import { redirect } from "next/navigation";
+import { aiLimiter } from "@/lib/ratelimit";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
 import NewNoteButton from "../components/NewNoteButton";
@@ -29,17 +30,21 @@ export default async function HomePage({
   // try meaning if no title matches
   if (q && notes.length === 0) {
     try {
-      const vector = await embed(q);
-      const literal = `[${vector.join(",")}]`;
+      // rate limiter
+      const { success } = await aiLimiter.limit(session.user.id);
+      if (success) {
+        const vector = await embed(q);
+        const literal = `[${vector.join(",")}]`;
 
-      notes = await prisma.$queryRaw<typeof notes>`
-      SELECT n.* FROM notes n
-      JOIN note_embeddings e ON e."noteId" = n.id
-      WHERE n."userId" = ${session.user.id}
-        AND e.embedding <=> ${literal}::vector < 0.4
-      ORDER BY e.embedding <=> ${literal}::vector
-      LIMIT 10
-    `;
+        notes = await prisma.$queryRaw<typeof notes>`
+          SELECT n.* FROM notes n
+          JOIN note_embeddings e ON e."noteId" = n.id
+          WHERE n."userId" = ${session.user.id}
+            AND e.embedding <=> ${literal}::vector < 0.4
+          ORDER BY e.embedding <=> ${literal}::vector
+          LIMIT 10
+        `;
+      }
     } catch (err) {
       console.error("Semantic search failed:", err);
     }

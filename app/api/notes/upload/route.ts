@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { ai } from "@/lib/gemini";
 import { extractText } from "@/lib/extractText";
 import { saveEmbedding } from "@/lib/embeddings";
+import { aiLimiter } from "@/lib/ratelimit";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 export const ALLOWED_TYPES: string[] = [
@@ -20,6 +21,22 @@ export async function POST(req: Request) {
         const session = await auth();
         if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
             
+        // rate limiter
+        const { success, limit, remaining, reset } = await aiLimiter.limit(session.user.id);
+        if (!success) {
+            return NextResponse.json(
+                { error: "Rate limit exceeded. Try again later." },
+                {
+                    status: 429,
+                    headers: {
+                        "X-RateLimit-Limit": limit.toString(),
+                        "X-RateLimit-Remaining": remaining.toString(),
+                        "X-RateLimit-Reset": reset.toString(),
+                    },
+                }
+            );
+        }
+
         // parse form data body
         const formData = await req.formData();
         const file = formData.get("file") as File | null
