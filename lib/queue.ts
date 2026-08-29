@@ -8,14 +8,14 @@ const qstash = new Client({
 export async function queueEmbedding(noteId: string) {
     // inline execution
     if (process.env.NODE_ENV !== "production") {
-    const { embedNoteById } = await import("@/lib/embeddings");
+        const { embedNoteById } = await import("@/lib/embeddings");
 
-    await embedNoteById(noteId);
-    return;
+        await embedNoteById(noteId);
+        return;
     }
 
     await qstash.publishJSON({
-        url: `https://${process.env.VERCEL_URL}/api/jobs/embed`,
+        url: `${process.env.APP_URL}/api/jobs/embed`,
         body: { noteId },
     });
 }
