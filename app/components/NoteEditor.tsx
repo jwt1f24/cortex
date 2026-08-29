@@ -26,6 +26,7 @@ export default function NoteEditor({
   const [summary, setSummary] = useState(note.summary ?? "");
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [version, setVersion] = useState(note.version);
   const [view, setView] = useState<"summary" | "original">(
     note.source === "UPLOAD" && note.summary ? "summary" : "original",
   );
@@ -39,13 +40,16 @@ export default function NoteEditor({
       const res = await fetch(`/api/notes/${note.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, content, summary }),
+        body: JSON.stringify({ title, content, summary, version }),
       });
 
       if (!res.ok) {
         const data = await res.json().catch(() => null);
         throw new Error(data?.error || "Unable to save changes.");
       }
+
+      const data = await res.json();
+      setVersion(data.version);
 
       // refresh to dave updated data
       router.refresh();
