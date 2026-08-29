@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { saveEmbedding } from "@/lib/embeddings";
+import { queueEmbedding } from "@/lib/queue";
 
 const VALID_SOURCES = ["MANUAL", "UPLOAD"];
 
@@ -75,12 +75,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         // refetch so client gets new version number
         const updatedNote = await prisma.note.findUnique({ where: { id } });
 
-        // save embedded content
-        if (content !== undefined && content !== note.content && updatedNote) {
+        // queue embedded content
+        if (content !== undefined && content !== note.content) {
             try {
-                await saveEmbedding(id, `${updatedNote.title}\n\n${updatedNote.content}`.slice(0, 30000));
-            } catch(embedError) {
-                console.error("Failed to save embedding:", embedError);
+                await queueEmbedding(id)
+            } catch(error) {
+                console.error("Failed to queue embedding:", error);
             }    
         }
 

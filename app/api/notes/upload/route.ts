@@ -3,8 +3,8 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { ai } from "@/lib/gemini";
 import { extractText } from "@/lib/extractText";
-import { saveEmbedding } from "@/lib/embeddings";
 import { aiLimiter } from "@/lib/ratelimit";
+import { queueEmbedding } from "@/lib/queue";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 export const ALLOWED_TYPES: string[] = [
@@ -92,11 +92,11 @@ export async function POST(req: Request) {
             },
         });
 
-        // save embedded content
+        // queue embedded content
         try {
-            await saveEmbedding(note.id, `${title}\n\n${content}`.slice(0, 30000));
-        } catch(embedError) {
-            console.error("Failed to save embedding:", embedError);
+            await queueEmbedding(note.id);
+        } catch(error) {
+            console.error("Failed to queue embedding:", error);
         }
         
         return NextResponse.json(note, { status: 201 });

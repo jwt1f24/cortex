@@ -24,3 +24,10 @@ export async function saveEmbedding(noteId: string, text: string) {
         DO UPDATE SET embedding = ${literal}::vector, created_at = now()
     `
 }
+
+export async function embedNoteById(noteId: string) {
+    const note = await prisma.note.findUnique({ where: { id: noteId } });
+    if (!note || !note.content.trim()) return;
+
+    await saveEmbedding(noteId, `${note.title}\n\n${note.content}`.slice(0, 30000));
+}
