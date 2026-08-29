@@ -17,5 +17,8 @@ export async function queueEmbedding(noteId: string) {
     await qstash.publishJSON({
         url: `${process.env.APP_URL}/api/jobs/embed`,
         body: { noteId },
+        headers: {
+            "x-vercel-protection-bypass": process.env.VERCEL_AUTOMATION_BYPASS_SECRET!,
+        },
     });
 }
