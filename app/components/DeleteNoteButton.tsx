@@ -53,7 +53,7 @@ export default function DeleteNoteButton({
       ) : (
         <button
           onClick={() => setIsOpen(true)}
-          className="rounded-md px-4 py-2 bg-red-500 text-base font-semibold text-white hover:bg-red-600 transition cursor-pointer"
+          className="rounded-md px-4 py-2 bg-red-500 text-sm font-semibold text-white hover:bg-red-600 transition cursor-pointer"
         >
           Delete Note
         </button>

@@ -1,12 +1,11 @@
 "use client";
-import { useState } from "react";
-import { MoveLeft } from "lucide-react";
+import { useState, useEffect } from "react";
+import { MoveLeft, Sparkles, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { Note } from "@/app/generated/prisma";
-import Link from "next/link";
-import SummarizeButton from "./SummarizeButton";
-import DeleteNoteButton from "./DeleteNoteButton";
+import EditorOptionsButton from "./EditorOptionsButton";
 import ProfileMenu from "./ProfileMenu";
+import ChatPanel from "./ChatPanel";
 
 const TABS = [
   { key: "original", label: "Original" },
@@ -25,11 +24,17 @@ export default function NoteEditor({
   const [content, setContent] = useState(note.content);
   const [summary, setSummary] = useState(note.summary ?? "");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [version, setVersion] = useState(note.version);
   const [view, setView] = useState<"summary" | "original">(
     note.source === "UPLOAD" && note.summary ? "summary" : "original",
   );
+  const isDirty =
+    title !== note.title ||
+    content !== note.content ||
+    summary !== (note.summary ?? "");
 
   const saveChanges = async () => {
     setError(null);
@@ -53,14 +58,41 @@ export default function NoteEditor({
 
       // refresh to dave updated data
       router.refresh();
+      return true;
     } catch (error) {
       console.error("Error updating note:", error);
       setError(
         error instanceof Error ? error.message : "Something went wrong.",
       );
+      return false;
     } finally {
       setIsUpdating(false);
     }
+  };
+
+  // hotkey to save note
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        if (isDirty && !isUpdating) saveChanges();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  });
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
+
+  // save confirmation
+  const saveAndLeave = async () => {
+    const ok = await saveChanges();
+    if (ok) router.push("/home");
   };
 
   return (
@@ -69,15 +101,17 @@ export default function NoteEditor({
       <div className="sticky top-0 z-40 border-b border-gray-200 bg-white">
         <div className="flex items-center gap-4 px-6 h-14">
           {/* return button */}
-          <Link
-            href="/home"
+          <button
+            onClick={() =>
+              isDirty ? setShowLeaveConfirm(true) : router.push("/home")
+            }
             className="shrink-0 mr-6 text-base text-gray-600 font-semibold hover:text-gray-800 cursor-pointer"
           >
             <div className="flex gap-2">
               <MoveLeft />
               Back
             </div>
-          </Link>
+          </button>
 
           {/* title */}
           <div className="flex flex-1 min-w-0 items-center gap-4">
@@ -91,32 +125,34 @@ export default function NoteEditor({
             {/* description */}
             <span className="shrink-0 text-sm text-gray-600 truncate">
               {note.source === "UPLOAD" ? "Uploaded document" : "Note"} • Last
-              Updated {note.updated_at.toLocaleDateString()}
+              Updated {note.updated_at.toLocaleDateString()} •{" "}
+              <span
+                className={
+                  isDirty ? "text-amber-600 font-semibold" : "text-gray-600"
+                }
+              >
+                {isDirty ? "Unsaved changes" : "Saved"}
+              </span>
             </span>
           </div>
 
           {/* action buttons */}
-          <div className="flex shrink-0 items-center gap-4 pr-16">
-            {/* summarize note */}
-            <SummarizeButton
+          <div className="flex shrink-0 items-center gap-4 pr-8">
+            <button
+              onClick={saveChanges}
+              disabled={isUpdating}
+              className="rounded-md bg-gray-700 px-4 py-2 text-sm text-white font-semibold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+            >
+              {isUpdating ? "Saving..." : "Save Changes"}
+            </button>
+
+            <EditorOptionsButton
               noteId={note.id}
               onSummary={(s) => {
                 setSummary(s);
                 setView("summary");
               }}
             />
-
-            {/* save note */}
-            <button
-              onClick={saveChanges}
-              disabled={isUpdating}
-              className="rounded-md bg-gray-700 px-4 py-2 text-base text-white font-semibold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
-            >
-              {isUpdating ? "Saving..." : "Save Changes"}
-            </button>
-
-            {/* delete note */}
-            <DeleteNoteButton noteId={note.id} />
           </div>
 
           {/* user profile */}
@@ -124,46 +160,127 @@ export default function NoteEditor({
         </div>
       </div>
 
-      <main className="w-full max-w-3xl mx-auto px-6 pt-4 pb-6">
-        {error && (
-          <p className="mb-2 rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
-            {error}
-          </p>
-        )}
+      {/* editor */}
+      <div className="flex">
+        <main
+          className={
+            isChatOpen
+              ? "flex-1 min-w-0 px-6 pt-4 pb-8"
+              : "w-full max-w-5xl mx-auto px-6 pt-4 pb-8"
+          }
+        >
+          {error && (
+            <p className="mb-2 rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
+              {error}
+            </p>
+          )}
+          {/* tabs */}
+          <div className="flex items-end justify-between border-b border-gray-300">
+            <div className="flex gap-1">
+              {TABS.map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setView(tab.key)}
+                  className={`px-4 py-2 text-base font-semibold border-b-2 -mb-px transition cursor-pointer ${
+                    view === tab.key
+                      ? "border-black text-black"
+                      : "border-transparent text-gray-500 hover:text-black"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
 
-        {/* tabs */}
-        <div className="flex gap-1 border-b border-gray-300">
-          {TABS.map((tab) => (
+            {/* chatbot toggle */}
             <button
-              key={tab.key}
-              onClick={() => setView(tab.key)}
-              className={`px-4 py-2 text-base font-semibold border-b-2 -mb-px transition cursor-pointer ${
-                view === tab.key
-                  ? "border-black text-black"
-                  : "border-transparent text-gray-500 hover:text-black"
+              onClick={() => setIsChatOpen(!isChatOpen)}
+              className={`mb-1.5 flex items-center gap-2 rounded-md px-3 py-1.5 text-base font-semibold text-white transition cursor-pointer ${
+                isChatOpen
+                  ? "bg-gray-700 hover:bg-gray-800"
+                  : "bg-blue-600 hover:bg-blue-700"
               }`}
             >
-              {tab.label}
+              {isChatOpen ? (
+                <>
+                  <X className="h-5 w-5" />
+                  Collapse AI
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-5 w-5" />
+                  Ask AI
+                </>
+              )}
             </button>
-          ))}
-        </div>
+          </div>
 
-        {/* panel */}
-        {view === "original" ? (
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="mt-2 p-6 w-full min-h-[calc(100vh-10rem)] resize-none border border-gray-400 bg-white text-base leading-relaxed text-black focus:outline-none"
-          />
-        ) : (
-          <textarea
-            value={summary}
-            onChange={(e) => setSummary(e.target.value)}
-            placeholder="No summary yet..."
-            className="mt-2 p-6 w-full min-h-[calc(100vh-10rem)] resize-none border border-gray-400 bg-white text-base leading-relaxed text-black focus:outline-none placeholder:text-gray-400"
-          />
+          {/* panel */}
+          {view === "original" ? (
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="mt-2 p-6 w-full min-h-[calc(100vh-10rem)] resize-none border border-gray-400 bg-white text-base leading-relaxed text-black focus:outline-none"
+            />
+          ) : (
+            <textarea
+              value={summary}
+              onChange={(e) => setSummary(e.target.value)}
+              placeholder="No summary yet..."
+              className="mt-2 p-6 w-full min-h-[calc(100vh-10rem)] resize-none border border-gray-400 bg-white text-base leading-relaxed text-black focus:outline-none placeholder:text-gray-400"
+            />
+          )}
+        </main>
+
+        {/* chatbot panel */}
+        {isChatOpen && (
+          <ChatPanel noteId={note.id} onClose={() => setIsChatOpen(false)} />
         )}
-      </main>
+      </div>
+
+      {/* save confirmation modal */}
+      {showLeaveConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl">
+            <h2 className="text-lg font-semibold text-black">
+              Unsaved changes
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              You have unsaved changes to this note. What would you like to do?
+            </p>
+
+            {error && (
+              <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {error}
+              </p>
+            )}
+
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                onClick={() => setShowLeaveConfirm(false)}
+                disabled={isUpdating}
+                className="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 font-semibold hover:bg-gray-100 disabled:opacity-50 transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => router.push("/home")}
+                disabled={isUpdating}
+                className="rounded-md bg-red-500 px-4 py-2 text-sm text-white font-semibold hover:bg-red-600 disabled:opacity-50 transition cursor-pointer"
+              >
+                Don&apos;t save
+              </button>
+              <button
+                onClick={saveAndLeave}
+                disabled={isUpdating}
+                className="rounded-md bg-gray-700 px-4 py-2 text-sm text-white font-semibold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+              >
+                {isUpdating ? "Saving..." : "Save & Close"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
