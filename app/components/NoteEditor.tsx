@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import type { Note } from "@/app/generated/prisma";
 import EditorOptionsButton from "./EditorOptionsButton";
 import ProfileMenu from "./ProfileMenu";
-import ChatPanel from "./ChatPanel";
+import ChatPanel, { type Message } from "./ChatPanel";
 
 const TABS = [
   { key: "original", label: "Original" },
@@ -28,6 +28,7 @@ export default function NoteEditor({
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [version, setVersion] = useState(note.version);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [view, setView] = useState<"summary" | "original">(
     note.source === "UPLOAD" && note.summary ? "summary" : "original",
   );
@@ -234,7 +235,16 @@ export default function NoteEditor({
 
         {/* chatbot panel */}
         {isChatOpen && (
-          <ChatPanel noteId={note.id} onClose={() => setIsChatOpen(false)} />
+          <ChatPanel
+            noteId={note.id}
+            onClose={() => setIsChatOpen(false)}
+            onSummary={(s) => {
+              setSummary(s);
+              setView("summary");
+            }}
+            messages={messages}
+            setMessages={setMessages}
+          />
         )}
       </div>
 

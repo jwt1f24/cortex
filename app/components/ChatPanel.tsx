@@ -3,8 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { X, Send } from "lucide-react";
 
-type Source = { number: number; id: string; title: string };
-type Message = {
+export type Source = { number: number; id: string; title: string };
+export type Message = {
   role: "user" | "assistant";
   text: string;
   sources?: Source[];
@@ -13,11 +13,16 @@ type Message = {
 export default function ChatPanel({
   noteId,
   onClose,
+  onSummary,
+  messages,
+  setMessages,
 }: {
   noteId: string;
   onClose: () => void;
+  onSummary: (summary: string) => void;
+  messages: Message[];
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
 }) {
-  const [messages, setMessages] = useState<Message[]>([]);
   const [question, setQuestion] = useState("");
   const [isAsking, setIsAsking] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -40,7 +45,11 @@ export default function ChatPanel({
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ noteId, question: trimmed }),
+        body: JSON.stringify({
+          noteId,
+          question: trimmed,
+          history: messages.slice(-6),
+        }),
       });
 
       if (!res.ok) {
@@ -53,6 +62,10 @@ export default function ChatPanel({
         ...m,
         { role: "assistant", text: data.answer, sources: data.sources },
       ]);
+
+      if (data.action === "update_summary" && data.summary) {
+        onSummary(data.summary);
+      }
     } catch (error) {
       setMessages((m) => [
         ...m,
