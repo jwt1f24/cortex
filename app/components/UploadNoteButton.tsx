@@ -76,28 +76,28 @@ export default function UploadNoteButton() {
       {/* modal */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-lg bg-white shadow-xl">
+          <div className="w-full max-w-xs sm:max-w-md rounded-lg bg-white shadow-xl">
             {/* header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-black">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-2 sm:py-4 border-b border-gray-200">
+              <h2 className="text-base sm:text-lg font-semibold text-black">
                 Upload a document
               </h2>
               <button
                 onClick={closeModal}
                 aria-label="Close"
-                className="h-8 w-8 flex items-center justify-center rounded-full text-gray-600 hover:bg-gray-200 transition cursor-pointer"
+                className="h-8 w-8 sm:h-6 sm:w-6 flex items-center justify-center rounded-full text-gray-600 hover:bg-gray-200 transition cursor-pointer"
               >
                 ✖
               </button>
             </div>
 
             {/* drop area */}
-            <div className="px-5 py-6">
-              <label className="flex flex-col items-center justify-center py-12 gap-2 rounded-lg border-2 border-dashed border-gray-400 hover:bg-gray-50 transition cursor-pointer">
-                <span className="text-base text-black">
+            <div className="px-4 sm:px-6 pt-2 sm:pt-4">
+              <label className="flex flex-col items-center justify-center py-8 sm:py-8 gap-1.5 sm:gap-2 rounded-lg border-2 border-dashed border-gray-400 hover:bg-gray-50 transition cursor-pointer">
+                <span className="text-sm sm:text-base text-black text-center px-2">
                   {file ? file.name : "Click to select a file"}
                 </span>
-                <span className="text-sm text-gray-600">
+                <span className="text-xs sm:text-sm text-gray-600">
                   TXT, MD, PDF, or DOCX • max 5MB
                 </span>
                 <input
@@ -110,11 +110,11 @@ export default function UploadNoteButton() {
             </div>
 
             {/* footer */}
-            <div className="border-t border-gray-200 px-5 py-4">
+            <div className="px-4 sm:px-6 py-2 sm:py-4">
               <button
                 onClick={upload}
                 disabled={!file || isUploading}
-                className="w-full px-4 py-2 rounded-md bg-gray-900 text-base text-white font-semibold hover:bg-gray-800 transition cursor-pointer disabled:opacity-25 disabled:cursor-not-allowed"
+                className="w-full px-4 py-2 rounded-md bg-gray-900 text-sm sm:text-base text-white font-semibold hover:bg-gray-800 transition cursor-pointer disabled:opacity-25 disabled:cursor-not-allowed"
               >
                 {isUploading ? "Uploading..." : "Upload"}
               </button>
@@ -125,7 +125,7 @@ export default function UploadNoteButton() {
 
       {/* toast */}
       {toast && (
-        <div className="fixed bottom-4 right-4 z-50 w-80 rounded-lg border border=gray=200 bg-white shadow-lg overflow-hidden">
+        <div className="fixed z-50 bottom-4 left-4 right-4 sm:left-auto sm:right-4 w-auto sm:w-80 rounded-lg border border-gray-300 bg-white shadow-xl overflow-hidden">
           <div className="flex items-start justify-between gap-3 px-4 py-3">
             <div className="flex items-start gap-2.5">
               <span
@@ -143,7 +143,7 @@ export default function UploadNoteButton() {
             {toast.status !== "uploading" && (
               <button
                 onClick={() => setToast(null)}
-                className="text-sm text-gray-500 hover:text-gray-600"
+                className="text-sm text-gray-500 hover:text-gray-600 cursor-pointer"
               >
                 ✖
               </button>

@@ -81,13 +81,14 @@ export default function ChatPanel({
   };
 
   return (
-    <aside className="sticky top-14 flex h-[calc(100vh-3.5rem)] w-96 shrink-0 flex-col border-l border-gray-200 bg-white">
+    <aside className="w-full lg:w-96 lg:shrink-0 flex flex-col border-t lg:border-t-0 lg:border-1 border-gray-200 bg-white h-[100vh] lg:sticky lg:top-14 lg:h-[calc(100vh-3.5rem)]">
       {/* header */}
       <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
         <div>
           <h2 className="text-base font-semibold text-gray-900">Ask AI</h2>
           <p className="text-sm text-gray-500">
-            Answers from this note and related ones
+            Answers from this note and related ones. Detailed prompts may take
+            longer response times.
           </p>
         </div>
         <button

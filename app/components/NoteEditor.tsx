@@ -99,34 +99,34 @@ export default function NoteEditor({
   return (
     <>
       {/* toolbar */}
-      <div className="sticky top-0 z-40 border-b border-gray-200 bg-white">
-        <div className="flex items-center gap-4 px-6 h-14">
+      <div className="sticky top-0 z-40 border-b border-gray-200 bg-white shadow-sm">
+        <div className="flex items-center gap-2 sm:gap-4 px-3 sm:px-6 h-14">
           {/* return button */}
           <button
             onClick={() =>
               isDirty ? setShowLeaveConfirm(true) : router.push("/home")
             }
-            className="shrink-0 mr-6 text-base text-gray-600 font-semibold hover:text-gray-800 cursor-pointer"
+            className="shrink-0 mr-2 text-base text-gray-600 font-semibold hover:text-gray-800 cursor-pointer"
           >
             <div className="flex gap-2">
               <MoveLeft />
-              Back
+              <span className="hidden sm:inline">Back</span>
             </div>
           </button>
 
           {/* title */}
-          <div className="flex flex-1 min-w-0 items-center gap-4">
+          <div className="flex flex-1 min-w-0 items-center gap-2 sm:gap-4">
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Untitled"
-              className="w-full max-w-md rounded-md border border-transparent px-2 py-1 text-base text-black font-semibold placeholder:text-gray-400 hover:border-gray-200 focus:border-gray-600 focus:bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 transition"
+              className="w-full min-w-0 max-w-[140px] sm:max-w-md rounded-md border border-transparent px-2 py-1 text-base text-black font-semibold placeholder:text-gray-400 hover:border-gray-200 focus:border-gray-600 focus:bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 transition"
             />
 
             {/* description */}
-            <span className="shrink-0 text-sm text-gray-600 truncate">
-              {note.source === "UPLOAD" ? "Uploaded document" : "Note"} • Last
-              Updated {note.updated_at.toLocaleDateString()} •{" "}
+            <span className="hidden md:inline shrink-0 text-sm text-gray-600 truncate">
+              {note.source === "UPLOAD" ? "Document" : "Note"} • Last Updated{" "}
+              {note.updated_at.toLocaleDateString()} •{" "}
               <span
                 className={
                   isDirty ? "text-amber-600 font-semibold" : "text-gray-600"
@@ -138,13 +138,16 @@ export default function NoteEditor({
           </div>
 
           {/* action buttons */}
-          <div className="flex shrink-0 items-center gap-4 pr-8">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-4 pr-2 sm:pr-8">
             <button
               onClick={saveChanges}
               disabled={isUpdating}
-              className="rounded-md bg-gray-700 px-4 py-2 text-sm text-white font-semibold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+              className="rounded-md bg-gray-700 px-3 sm:px-4 py-2 text-sm text-white font-semibold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap transition cursor-pointer"
             >
-              {isUpdating ? "Saving..." : "Save Changes"}
+              <span className="hidden sm:inline">
+                {isUpdating ? "Saving..." : "Save"}
+              </span>
+              <span className="sm:hidden">{isUpdating ? "..." : "Save"}</span>
             </button>
 
             <EditorOptionsButton
@@ -162,12 +165,12 @@ export default function NoteEditor({
       </div>
 
       {/* editor */}
-      <div className="flex">
+      <div className="flex flex-col lg:flex-row">
         <main
           className={
             isChatOpen
-              ? "flex-1 min-w-0 px-6 pt-4 pb-8"
-              : "w-full max-w-5xl mx-auto px-6 pt-4 pb-8"
+              ? "flex-1 min-w-0 px-3 sm:px-6 pt-4 pb-8"
+              : "w-full max-w-5xl mx-auto px-2 sm:px-6 pt-4 pb-8"
           }
         >
           {error && (
@@ -176,13 +179,13 @@ export default function NoteEditor({
             </p>
           )}
           {/* tabs */}
-          <div className="flex items-end justify-between border-b border-gray-300">
+          <div className="flex flex-wrap items-end justify-between gap-2 border-b border-gray-300">
             <div className="flex gap-1">
               {TABS.map((tab) => (
                 <button
                   key={tab.key}
                   onClick={() => setView(tab.key)}
-                  className={`px-4 py-2 text-base font-semibold border-b-2 -mb-px transition cursor-pointer ${
+                  className={`px-3 sm:px-4 py-2 text-base font-semibold border-b-2 -mb-px transition cursor-pointer ${
                     view === tab.key
                       ? "border-black text-black"
                       : "border-transparent text-gray-500 hover:text-black"
@@ -205,12 +208,12 @@ export default function NoteEditor({
               {isChatOpen ? (
                 <>
                   <X className="h-5 w-5" />
-                  Collapse AI
+                  <span className="hidden sm:inline">Collapse AI</span>
                 </>
               ) : (
                 <>
                   <Sparkles className="h-5 w-5" />
-                  Ask AI
+                  <span className="hidden sm:inline">Ask AI</span>
                 </>
               )}
             </button>
@@ -221,14 +224,14 @@ export default function NoteEditor({
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="mt-2 p-6 w-full min-h-[calc(100vh-10rem)] resize-none border border-gray-400 bg-white text-base leading-relaxed text-black focus:outline-none"
+              className="mt-2 p-4 sm:p-6 w-full min-h-[100vh] lg:min-h-[calc(100vh-10rem)] resize-none border border-gray-400 bg-white text-base leading-relaxed text-black focus:outline-none"
             />
           ) : (
             <textarea
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
               placeholder="No summary yet..."
-              className="mt-2 p-6 w-full min-h-[calc(100vh-10rem)] resize-none border border-gray-400 bg-white text-base leading-relaxed text-black focus:outline-none placeholder:text-gray-400"
+              className="mt-2 p-4 sm:p-6 w-full min-h-[100vh] lg:min-h-[calc(100vh-10rem)] resize-none border border-gray-400 bg-white text-base leading-relaxed text-black focus:outline-none placeholder:text-gray-400"
             />
           )}
         </main>

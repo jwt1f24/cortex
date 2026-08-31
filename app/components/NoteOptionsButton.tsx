@@ -12,13 +12,22 @@ export default function NoteOptionsButton({
   noteTitle: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [openUpward, setOpenUpward] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   // toggle popup visibility
-  const loadOptions = () => setIsOpen(!isOpen);
+  const loadOptions = () => {
+    if (!isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const estimatedMenuHeight = 150;
+    }
+
+    setIsOpen(!isOpen);
+  };
 
   // hide popup when clicking outside
-  const menuRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (!isOpen) return;
 
@@ -51,7 +60,7 @@ export default function NoteOptionsButton({
 
       {/* dropdown */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 border border-gray-300 bg-white shadow-lg py-1 z-50">
+        <div className="absolute right-0 w-48 border border-gray-300 bg-white shadow-lg py-1 z-50">
           {/* edit note title */}
           <RenameNoteButton noteId={noteId} noteTitle={noteTitle} />
 

@@ -55,13 +55,13 @@ export default async function HomePage({
       {/* navbar */}
       <Navbar user={session.user} />
 
-      <main className="w-full max-w-6xl mx-auto px-6 py-8">
+      <main className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 sm:mb-24">
         {/* header row */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-medium tracking-tight">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <h1 className="text-xl sm:text-2xl font-medium tracking-tight">
             {q ? "Search results" : "Welcome to Cortex"}
           </h1>
-          <div className="flex gap-8">
+          <div className="flex gap-3 sm:gap-8">
             <NewNoteButton />
             <UploadNoteButton />
           </div>
@@ -69,10 +69,10 @@ export default async function HomePage({
 
         {/* column headers */}
         <div className="border border-gray-400 shadow-xl">
-          <div className="grid grid-cols-12 gap-4 px-4 py-3 border-b border-gray-300 bg-white text-gray-800 text-base font-medium tracking-wide">
-            <span className="col-span-7">Name</span>
-            <span className="col-span-3">Last updated</span>
-            <span className="col-span-2" />
+          <div className="grid grid-cols-12 gap-2 sm:gap-4 px-3 sm:px-4 py-3 border-b border-gray-300 bg-white text-gray-800 text-sm sm:text-base font-medium tracking-wide">
+            <span className="col-span-8 sm:col-span-7">Name</span>
+            <span className="hidden sm:block sm:col-span-3">Last updated</span>
+            <span className="col-span-4 sm:col-span-2" />
           </div>
 
           {/* note list */}
@@ -85,22 +85,25 @@ export default async function HomePage({
               notes.map((note) => (
                 <div
                   key={note.id}
-                  className="group grid grid-cols-12 items-center gap-4 px-4 py-3 hover:bg-gray-50 transition"
+                  className="group grid grid-cols-12 items-center gap-2 sm:gap-4 px-3 sm:px-4 py-3 hover:bg-gray-50 transition"
                 >
                   <Link
                     href={`/notes/${note.id}`}
-                    className="col-span-7 min-w-0"
+                    className="col-span-8 sm:col-span-7 min-w-0"
                   >
-                    <span className="block text-base text-black font-medium truncate">
+                    <span className="block text-sm sm:text-base text-black font-medium truncate">
                       {note.title}
+                    </span>
+                    <span className="block sm:hidden text-xs text-gray-500 truncate">
+                      {note.updated_at.toLocaleDateString()}
                     </span>
                   </Link>
 
-                  <span className="col-span-3 text-base text-gray-600">
+                  <span className="hidden sm:block sm:col-span-3 text-base text-gray-600">
                     {note.updated_at.toLocaleDateString()}
                   </span>
 
-                  <div className="col-span-2 flex justify-end">
+                  <div className="col-span-4 sm:col-span-2 flex justify-end">
                     <NoteOptionsButton
                       noteId={note.id}
                       noteTitle={note.title}

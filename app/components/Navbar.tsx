@@ -10,20 +10,24 @@ export default function Navbar({
 }) {
   return (
     <div className="mb-8 border-b border-gray-200 bg-white text-black text-2xl">
-      <div className="px-6 h-14 flex items-center justify-between gap-6">
+      <div className="px-3 sm:px-6 h-14 flex items-center justify-between gap-3 sm:gap-6">
         {/* left */}
         <Link
           href={"/home"}
-          className="font-semibold tracking-tight cursor-pointer"
+          className="shrink-0 font-semibold tracking-tight text-lg sm:text-2xl cursor-pointer"
         >
           Cortex
         </Link>
 
         {/* middle */}
-        <Searchbar />
+        <div className="flex-1 min-w-0">
+          <Searchbar />
+        </div>
 
         {/* right */}
-        <ProfileMenu user={user} />
+        <div className="shrink-0">
+          <ProfileMenu user={user} />
+        </div>
       </div>
     </div>
   );
