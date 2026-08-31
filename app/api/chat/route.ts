@@ -88,15 +88,17 @@ export async function POST(req: Request) {
           .join("\n")}\n`
       : "";
 
-    const prompt = `You are an assistant working with the user's own notes.
+    const prompt = `You are an assistant helping the user with ONE specific note they have open — note [1]. You do not have access to, and must not reference, any of the user's other notes.
 
 Decide which of two things the user is asking for, and reply with JSON only.
 
-If they are asking a QUESTION about the notes:
+If they are asking a QUESTION:
 {"action":"answer","answer":"..."}
-- Answer using ONLY the notes below. Do not use outside knowledge.
-- If the notes lack the information, say so plainly. Do not guess.
-- Cite notes by number, like [1] or [2]. Be concise.
+- Answer using note [1]'s content as your primary source.
+- You may also use your general knowledge, but ONLY to help with the note's topic — for example, explaining a related concept, giving background, comparing it to something similar, or answering a natural follow-up question about the same subject. (e.g. if the note is about git commands, you can explain why version control matters; if it's about apples, you can compare it to other fruits.)
+- Do NOT answer questions that are unrelated to the note's topic. If the user asks something with no reasonable connection to what's in the note, say plainly that it's outside what this note covers, and don't answer it.
+- Never reference or imply the existence of the user's other notes.
+- Cite the note as [1] when using its content directly. Be concise.
 
 If they are asking you to WRITE, REWRITE, FIX, IMPROVE, SHORTEN or EXPAND the summary of note [1]:
 {"action":"update_summary","summary":"...","message":"..."}
@@ -115,11 +117,28 @@ ${historyBlock}
 
 USER: ${question}`;
 
-    const result = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
-      contents: prompt,
-      config: { responseMimeType: "application/json" },
-    });
+    let result;
+    try {
+      result = await ai.models.generateContent({
+        model: "gemini-3.6-flash",
+        contents: prompt,
+        config: { responseMimeType: "application/json" },
+      });
+    } catch (aiError: any) {
+      console.error("Gemini call failed:", aiError);
+
+      if (aiError?.status === 429 || aiError?.error?.code === 429) {
+        return NextResponse.json(
+          { error: "AI quota exceeded for today. Please try again later." },
+          { status: 429 },
+        );
+      }
+
+      return NextResponse.json(
+        { error: "AI request failed. Please try again." },
+        { status: 502 },
+      );
+    }
 
     const raw = result.text;
     if (!raw) {
