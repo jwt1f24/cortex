@@ -124,10 +124,25 @@ USER: ${question}`;
         contents: prompt,
         config: { responseMimeType: "application/json" },
       });
-    } catch (aiError: any) {
+    } catch (aiError: unknown) {
       console.error("Gemini call failed:", aiError);
 
-      if (aiError?.status === 429 || aiError?.error?.code === 429) {
+      const status =
+        aiError && typeof aiError === "object" && "status" in aiError
+          ? (aiError as { status?: number }).status
+          : undefined;
+
+      const errorCode =
+        aiError &&
+        typeof aiError === "object" &&
+        "error" in aiError &&
+        aiError.error &&
+        typeof aiError.error === "object" &&
+        "code" in aiError.error
+          ? (aiError.error as { code?: number }).code
+          : undefined;
+
+      if (status === 429 || errorCode === 429) {
         return NextResponse.json(
           { error: "AI quota exceeded for today. Please try again later." },
           { status: 429 },
