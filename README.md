@@ -28,7 +28,7 @@ Search is hybrid: exact title matches are returned first, and when nothing match
 
 ## 🎥 Video Demo
 
-[![Video Demo](./public/thumbnail.png)]()
+[![Video Demo](./public/thumbnail.png)](https://youtu.be/1rY00tzof-M?si=nXWeSSe9SlCDF6er)
 
 ## 🏗️ Architecture Overview
 
