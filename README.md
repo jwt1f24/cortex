@@ -28,7 +28,7 @@ Search is hybrid: exact title matches are returned first, and when nothing match
 
 ## 🎥 Video Demo
 
-[![Video Demo](./public/img3.jpg)]
+[![Video Demo](./public/thumbnail.png)]()
 
 ## 🏗️ Architecture Overview
 
@@ -191,7 +191,6 @@ Every AI call is wrapped so failure degrades one feature rather than breaking th
 ## ⚠️ Known Limitations
 
 - **Embedding blocks the request** — saving a note waits on the embedding API, adding a few seconds. A background job queue is the correct fix; this is documented rather than solved.
-- **No rate limiting** on AI endpoints — acceptable for personal use, not for public deployment.
 - **Preview deployments share the production database** — a separate Neon branch per environment would be correct.
 - **Scanned PDFs unsupported** — no text layer means nothing to extract; OCR would be required.
 - **Plain-text content only** — no rich-text formatting.
@@ -244,11 +243,3 @@ The app runs at `http://localhost:3000`.
 - Add `DATABASE_URL`, `NEXTAUTH_SECRET`, and `GEMINI_API_KEY` for both Production and Preview
 - Add `"postinstall": "prisma generate"` to `package.json` scripts so the Prisma client is generated during the build
 - Deploys run automatically on every push to `main`
-
-## 🗺️ Roadmap
-
-- Background job queue for embedding and summarisation
-- RAG chat — ask questions answered from your own notes
-- Markdown rendering in the editor
-- Automated tests for API routes
-- Dark mode
