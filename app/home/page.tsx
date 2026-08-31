@@ -107,6 +107,7 @@ export default async function HomePage({
                     <NoteOptionsButton
                       noteId={note.id}
                       noteTitle={note.title}
+                      noteVersion={note.version}
                     />
                   </div>
                 </div>

@@ -7,9 +7,11 @@ import RenameNoteButton from "./RenameNoteButton";
 export default function NoteOptionsButton({
   noteId,
   noteTitle,
+  noteVersion,
 }: {
   noteId: string;
   noteTitle: string;
+  noteVersion: number;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [openUpward, setOpenUpward] = useState(false);
@@ -22,8 +24,8 @@ export default function NoteOptionsButton({
       const rect = buttonRef.current.getBoundingClientRect();
       const spaceBelow = window.innerHeight - rect.bottom;
       const estimatedMenuHeight = 150;
+      setOpenUpward(spaceBelow < estimatedMenuHeight);
     }
-
     setIsOpen(!isOpen);
   };
 
@@ -47,6 +49,7 @@ export default function NoteOptionsButton({
   return (
     <div className="relative" ref={menuRef}>
       <button
+        ref={buttonRef}
         onClick={loadOptions}
         aria-label="Note options"
         className="h-9 w-9 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition cursor-pointer"
@@ -60,9 +63,17 @@ export default function NoteOptionsButton({
 
       {/* dropdown */}
       {isOpen && (
-        <div className="absolute right-0 w-48 border border-gray-300 bg-white shadow-lg py-1 z-50">
+        <div
+          className={`absolute right-0 w-48 border border-gray-300 bg-white shadow-lg py-1 z-50 ${
+            openUpward ? "bottom-full mb-2" : "top-full mt-2"
+          }`}
+        >
           {/* edit note title */}
-          <RenameNoteButton noteId={noteId} noteTitle={noteTitle} />
+          <RenameNoteButton
+            noteId={noteId}
+            noteTitle={noteTitle}
+            noteVersion={noteVersion}
+          />
 
           {/* open in new tab */}
           <a

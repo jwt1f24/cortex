@@ -6,9 +6,11 @@ import { Pencil } from "lucide-react";
 export default function RenameNoteButton({
   noteId,
   noteTitle,
+  noteVersion,
 }: {
   noteId: string;
   noteTitle: string;
+  noteVersion: number;
 }) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
@@ -31,11 +33,17 @@ export default function RenameNoteButton({
       const res = await fetch(`/api/notes/${noteId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title }),
+        body: JSON.stringify({ title, version: noteVersion }),
       });
 
       if (!res.ok) {
         const data = await res.json().catch(() => null);
+        if (res.status === 409) {
+          throw new Error(
+            data?.error ||
+              "This note was changed elsewhere. Refresh and try again.",
+          );
+        }
         throw new Error(data?.error || "Unable to rename note.");
       }
 
